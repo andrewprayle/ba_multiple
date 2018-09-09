@@ -27,6 +27,7 @@ get_anova_table <- function(x, g, verbose = F){
     anova_table$df[3] <- nrow(fdata) - 1
     anova_table$df[2] <- anova_table$df[3] - anova_table$df[1]
     
+    if (verbose) print("anova_table")
     if (verbose) print(anova_table)
     
     ########################################################
@@ -46,7 +47,7 @@ get_anova_table <- function(x, g, verbose = F){
     anova_table$MS <- anova_table$SS / anova_table$df
     
     anova_table$F[1] <- anova_table$MS[1] /anova_table$MS[2]
-    
+    if (verbose) print("final returning anova_table")    
     if (verbose) print(anova_table)
     return(anova_table)
 }
@@ -67,6 +68,7 @@ get_group_table <- function(x, g, verbose = F){
               group_sd = sd(x))
   group_table$A_i <- group_table$group_mean - mean(fdata$x)
   group_table$m_2 <- group_table$m^2
+  if(verbose) print("group table")
   if(verbose) print(group_table)
   return(group_table)
 }
@@ -77,6 +79,15 @@ get_ba_result <- function(a, b, g, verbose = F, plotit = T){
   # master function, loads the data, calls the functions
   fdata <- as.data.frame(cbind(a, b, g))
   fdata$diff <- fdata$a - fdata$b
+  
+  # next thing to do is to remove any rows which contain NA
+  rows_to_remove  <- which(!complete.cases(fdata))
+  if (length(rows_to_remove) > 0){
+    print("Warning - deleting the following rows as they contain NA")
+    print(rows_to_remove)
+    fdata <- fdata[-rows_to_remove, ]
+  }
+  print(summary(fdata))
   
   # do the ba plot
   if (plotit)  plot(I(a - b) ~ I((a + b)/2), data = fdata,
@@ -105,7 +116,7 @@ get_ba_result <- function(a, b, g, verbose = F, plotit = T){
   tot_variance_single_diff
   sd_single_diff <- sqrt(tot_variance_single_diff)
   sd_single_diff
-  estimated_bias <- mean(data1$diff)
+  estimated_bias <- mean(fdata$diff)
   estimated_bias
   
   upper_95_limit <- estimated_bias + 1.96 * sd_single_diff
@@ -180,6 +191,16 @@ plot_subject_averages <- function(a, b, g, verbose = F, plotit = T){
 
 standard_ba <- function(a, b, verbose = F, plotit = T){
   fdata <- as.data.frame(cbind(a, b))
+  
+  rows_to_remove  <- which(!complete.cases(fdata))
+  if (length(rows_to_remove) > 0){
+    print("Warning - deleting the following rows as they contain NA")
+    print(rows_to_remove)
+    fdata <- fdata[-rows_to_remove, ]
+  }
+  print(summary(fdata))
+  
+  
   fdata$diff <- fdata$a - fdata$b
   fdata$mean <- (fdata$a + fdata$b)/2
   

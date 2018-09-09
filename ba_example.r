@@ -3,7 +3,9 @@ rm(list = ls())
 source("ba_functions.r")
 
 data1 <- read.csv("ba_2007_dataset.csv", stringsAsFactors = F, header = T)
-data1$diff <- data1$diff <- data1$RV - data1$IC
+
+data1$diff <- data1$RV - data1$IC
+data1$diff <- log10(data1$RV) - log10(data1$IC)
 
 plot(RV ~ IC, data = data1,
      pch = as.character(data1$Subj.), col = "white")
@@ -20,3 +22,7 @@ kable(standard_ba(data1$RV, data1$IC, plotit = T, verbose = T))
 plot_sd(data1$RV, data1$IC, data1$Subj., plotit = T, verbose = T)
 plot_subject_averages(data1$RV, data1$IC, data1$Subj., verbose = T)
 
+## working with logged data:
+results_table <- get_ba_result(log10(data1$RV), log10(data1$IC), data1$Subj., plotit = T, verbose = T)
+require(knitr)
+kable(results_table)
